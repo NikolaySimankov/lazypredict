@@ -249,7 +249,8 @@ class LazyClassifier:
         B_Accuracy = []
         ROC_AUC = []
         F1 = []
-        Recall = []
+        Sensitivity = []
+        Specificity = []
         names = []
         TIME = []
         predictions = {}
@@ -325,7 +326,7 @@ class LazyClassifier:
                 accuracy = accuracy_score(y_test, y_pred, normalize=True)
                 b_accuracy = balanced_accuracy_score(y_test, y_pred)
                 f1 = f1_score(y_test, y_pred, average="weighted")
-                sensitivity = recall_score(y_test, y_pred)
+                sensitivity = recall_score(y_test, y_pred, pos_label=1)
                 specificity = recall_score(y_test, y_pred, pos_label=0)
                 try:
                     roc_auc = roc_auc_score(y_test, y_pred)
