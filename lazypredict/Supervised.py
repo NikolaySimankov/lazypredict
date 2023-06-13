@@ -20,6 +20,8 @@ from sklearn.metrics import (
     balanced_accuracy_score,
     roc_auc_score,
     f1_score,
+    recall_core,
+    cohen_kappa_score,
     r2_score,
     mean_squared_error,
 )
@@ -210,6 +212,7 @@ class LazyClassifier:
         predictions=False,
         random_state=42,
         classifiers="all",
+        class_weight=None,
     ):
         self.verbose = verbose
         self.ignore_warnings = ignore_warnings
@@ -217,6 +220,7 @@ class LazyClassifier:
         self.predictions = predictions
         self.models = {}
         self.random_state = random_state
+        self.class_weight = class_weight
         self.classifiers = classifiers
 
     def fit(self, X_train, X_test, y_train, y_test):
@@ -246,6 +250,8 @@ class LazyClassifier:
         B_Accuracy = []
         ROC_AUC = []
         F1 = []
+        Recall = []
+        Kappa = []
         names = []
         TIME = []
         predictions = {}
@@ -295,6 +301,21 @@ class LazyClassifier:
                             ("classifier", model(random_state=self.random_state)),
                         ]
                     )
+                elif "class_weight" in model().get_params().keys():
+                    pipe = Pipeline(
+                        steps=[
+                            ("preprocessor", preprocessor),
+                            ("classifier", model(class_weight=self.class_weight)),
+                        ]
+                    )
+                elif "class_weight" in model().get_params().keys() and "random_state" in model().get_params().keys():
+                    pipe = Pipeline(
+                        steps=[
+                            ("preprocessor", preprocessor),
+                            ("classifier", model(random_state=self.random_state,
+                                                 class_weight=self.class_weight)),
+                        ]
+                    )
                 else:
                     pipe = Pipeline(
                         steps=[("preprocessor", preprocessor), ("classifier", model())]
@@ -306,6 +327,8 @@ class LazyClassifier:
                 accuracy = accuracy_score(y_test, y_pred, normalize=True)
                 b_accuracy = balanced_accuracy_score(y_test, y_pred)
                 f1 = f1_score(y_test, y_pred, average="weighted")
+                recall = recall_score(y_test, y_pred)
+                kappa = cohen_kappa_score(y_test, y_pred)
                 try:
                     roc_auc = roc_auc_score(y_test, y_pred)
                 except Exception as exception:
@@ -318,6 +341,8 @@ class LazyClassifier:
                 B_Accuracy.append(b_accuracy)
                 ROC_AUC.append(roc_auc)
                 F1.append(f1)
+                Recall.append(recall)
+                Kappa.append(kappa)
                 TIME.append(time.time() - start)
                 if self.custom_metric is not None:
                     custom_metric = self.custom_metric(y_test, y_pred)
@@ -331,6 +356,8 @@ class LazyClassifier:
                                 "Balanced Accuracy": b_accuracy,
                                 "ROC AUC": roc_auc,
                                 "F1 Score": f1,
+                                "Recall": recall,
+                                "Kappa": kappa,
                                 self.custom_metric.__name__: custom_metric,
                                 "Time taken": time.time() - start,
                             }
@@ -343,6 +370,8 @@ class LazyClassifier:
                                 "Balanced Accuracy": b_accuracy,
                                 "ROC AUC": roc_auc,
                                 "F1 Score": f1,
+                                "Recall": recall,
+                                "Kappa": kappa,
                                 "Time taken": time.time() - start,
                             }
                         )
@@ -360,6 +389,8 @@ class LazyClassifier:
                     "Balanced Accuracy": B_Accuracy,
                     "ROC AUC": ROC_AUC,
                     "F1 Score": F1,
+                    "Recall": recall,
+                    "Kappa": kappa,
                     "Time Taken": TIME,
                 }
             )
@@ -371,6 +402,8 @@ class LazyClassifier:
                     "Balanced Accuracy": B_Accuracy,
                     "ROC AUC": ROC_AUC,
                     "F1 Score": F1,
+                    "Recall": Recall,
+                    "Kappa": Kappa,
                     self.custom_metric.__name__: CUSTOM_METRIC,
                     "Time Taken": TIME,
                 }
