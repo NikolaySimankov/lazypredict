@@ -292,7 +292,15 @@ class LazyClassifier:
         for name, model in tqdm(self.classifiers):
             start = time.time()
             try:
-                if "random_state" in model().get_params().keys():
+                if "class_weight" in model().get_params().keys() and "random_state" in model().get_params().keys():
+                    pipe = Pipeline(
+                        steps=[
+                            ("preprocessor", preprocessor),
+                            ("classifier", model(random_state=self.random_state,
+                                                 class_weight=self.class_weight)),
+                        ]
+                    )
+                elif "random_state" in model().get_params().keys():
                     pipe = Pipeline(
                         steps=[
                             ("preprocessor", preprocessor),
@@ -304,14 +312,6 @@ class LazyClassifier:
                         steps=[
                             ("preprocessor", preprocessor),
                             ("classifier", model(class_weight=self.class_weight)),
-                        ]
-                    )
-                elif "class_weight" in model().get_params().keys() and "random_state" in model().get_params().keys():
-                    pipe = Pipeline(
-                        steps=[
-                            ("preprocessor", preprocessor),
-                            ("classifier", model(random_state=self.random_state,
-                                                 class_weight=self.class_weight)),
                         ]
                     )
                 else:
