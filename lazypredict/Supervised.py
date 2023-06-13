@@ -326,8 +326,8 @@ class LazyClassifier:
                 accuracy = accuracy_score(y_test, y_pred, normalize=True)
                 b_accuracy = balanced_accuracy_score(y_test, y_pred)
                 f1 = f1_score(y_test, y_pred, average="weighted")
-                sensitivity = recall_score(y_test, y_pred, pos_label=1)
-                specificity = recall_score(y_test, y_pred, pos_label=0)
+                sensitivity = recall_score(y_test, y_pred, pos_label=1, average='binary')
+                specificity = recall_score(y_test, y_pred, pos_label=0, average='binary')
                 try:
                     roc_auc = roc_auc_score(y_test, y_pred)
                 except Exception as exception:
