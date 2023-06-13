@@ -20,7 +20,7 @@ from sklearn.metrics import (
     balanced_accuracy_score,
     roc_auc_score,
     f1_score,
-    recall_core,
+    recall_score,
     r2_score,
     mean_squared_error,
 )
