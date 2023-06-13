@@ -388,8 +388,8 @@ class LazyClassifier:
                     "Balanced Accuracy": B_Accuracy,
                     "ROC AUC": ROC_AUC,
                     "F1 Score": F1,
-                    "Sensitivity": sensitivity,
-                    "Specificity": specificity,
+                    "Sensitivity": Sensitivity,
+                    "Specificity": Specificity,
                     "Time Taken": TIME,
                 }
             )
