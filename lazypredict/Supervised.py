@@ -21,7 +21,6 @@ from sklearn.metrics import (
     roc_auc_score,
     f1_score,
     recall_core,
-    cohen_kappa_score,
     r2_score,
     mean_squared_error,
 )
@@ -251,7 +250,6 @@ class LazyClassifier:
         ROC_AUC = []
         F1 = []
         Recall = []
-        Kappa = []
         names = []
         TIME = []
         predictions = {}
@@ -328,7 +326,6 @@ class LazyClassifier:
                 b_accuracy = balanced_accuracy_score(y_test, y_pred)
                 f1 = f1_score(y_test, y_pred, average="weighted")
                 recall = recall_score(y_test, y_pred)
-                kappa = cohen_kappa_score(y_test, y_pred)
                 try:
                     roc_auc = roc_auc_score(y_test, y_pred)
                 except Exception as exception:
@@ -342,7 +339,6 @@ class LazyClassifier:
                 ROC_AUC.append(roc_auc)
                 F1.append(f1)
                 Recall.append(recall)
-                Kappa.append(kappa)
                 TIME.append(time.time() - start)
                 if self.custom_metric is not None:
                     custom_metric = self.custom_metric(y_test, y_pred)
@@ -357,7 +353,6 @@ class LazyClassifier:
                                 "ROC AUC": roc_auc,
                                 "F1 Score": f1,
                                 "Recall": recall,
-                                "Kappa": kappa,
                                 self.custom_metric.__name__: custom_metric,
                                 "Time taken": time.time() - start,
                             }
@@ -371,7 +366,6 @@ class LazyClassifier:
                                 "ROC AUC": roc_auc,
                                 "F1 Score": f1,
                                 "Recall": recall,
-                                "Kappa": kappa,
                                 "Time taken": time.time() - start,
                             }
                         )
@@ -390,7 +384,6 @@ class LazyClassifier:
                     "ROC AUC": ROC_AUC,
                     "F1 Score": F1,
                     "Recall": recall,
-                    "Kappa": kappa,
                     "Time Taken": TIME,
                 }
             )
@@ -403,7 +396,6 @@ class LazyClassifier:
                     "ROC AUC": ROC_AUC,
                     "F1 Score": F1,
                     "Recall": Recall,
-                    "Kappa": Kappa,
                     self.custom_metric.__name__: CUSTOM_METRIC,
                     "Time Taken": TIME,
                 }
