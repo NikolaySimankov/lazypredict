@@ -19,7 +19,7 @@ from sklearn.metrics import (
     accuracy_score,
     balanced_accuracy_score,
     roc_auc_score,
-    f1_score,
+    cohen_kappa_score,
     recall_score,
     r2_score,
     mean_squared_error,
@@ -37,11 +37,8 @@ pd.set_option("display.float_format", lambda x: "%.2f" % x)
 removed_classifiers = [
     "ClassifierChain",
     "ComplementNB",
-    "GradientBoostingClassifier",
-    "GaussianProcessClassifier",
-    "HistGradientBoostingClassifier",
-    "MLPClassifier",
-    "LogisticRegressionCV", 
+    "LogisticRegressionCV",
+    "RidgeClassifierCV",
     "MultiOutputClassifier", 
     "MultinomialNB", 
     "OneVsOneClassifier",
@@ -49,6 +46,11 @@ removed_classifiers = [
     "OutputCodeClassifier",
     "RadiusNeighborsClassifier",
     "VotingClassifier",
+    "DummyClassifier",
+    "CheckingClassifier",
+    "CalibratedClassifierCV",
+    "LabelPropagation",
+    "LabelSpreading",
 ]
 
 removed_regressors = [
@@ -199,8 +201,6 @@ class LazyClassifier:
     | DecisionTreeClassifier         |   0.936842 |            0.933693 |  0.933693 |   0.936971 |    0.0170023 |
     | NearestCentroid                |   0.947368 |            0.933506 |  0.933506 |   0.946801 |    0.0160074 |
     | ExtraTreeClassifier            |   0.922807 |            0.912168 |  0.912168 |   0.922462 |    0.0109999 |
-    | CheckingClassifier             |   0.361404 |            0.5      |  0.5      |   0.191879 |    0.0170043 |
-    | DummyClassifier                |   0.512281 |            0.489598 |  0.489598 |   0.518924 |    0.0119965 |
     """
 
     def __init__(
@@ -245,10 +245,9 @@ class LazyClassifier:
         predictions : Pandas DataFrame
             Returns predictions of all the models in a Pandas DataFrame.
         """
-        Accuracy = []
-        B_Accuracy = []
         ROC_AUC = []
-        F1 = []
+        B_Accuracy = []
+        Kappa = []
         Sensitivity = []
         Specificity = []
         names = []
@@ -323,9 +322,8 @@ class LazyClassifier:
                 pipe.fit(X_train, y_train)
                 self.models[name] = pipe
                 y_pred = pipe.predict(X_test)
-                accuracy = accuracy_score(y_test, y_pred, normalize=True)
                 b_accuracy = balanced_accuracy_score(y_test, y_pred)
-                f1 = f1_score(y_test, y_pred, average="weighted")
+                kappa = cohen_kappa_score(y_test, y_pred)
                 sensitivity = recall_score(y_test, y_pred, pos_label=1, average='binary')
                 specificity = recall_score(y_test, y_pred, pos_label=0, average='binary')
                 try:
@@ -336,10 +334,9 @@ class LazyClassifier:
                         print("ROC AUC couldn't be calculated for " + name)
                         print(exception)
                 names.append(name)
-                Accuracy.append(accuracy)
-                B_Accuracy.append(b_accuracy)
                 ROC_AUC.append(roc_auc)
-                F1.append(f1)
+                B_Accuracy.append(b_accuracy)
+                Kappa.append(kappa)
                 Sensitivity.append(sensitivity)
                 Specificity.append(specificity)
                 TIME.append(time.time() - start)
@@ -351,10 +348,9 @@ class LazyClassifier:
                         print(
                             {
                                 "Model": name,
-                                "Accuracy": accuracy,
-                                "Balanced Accuracy": b_accuracy,
                                 "ROC AUC": roc_auc,
-                                "F1 Score": f1,
+                                "Balanced Accuracy": b_accuracy,
+                                "Cohen's Kappa": kappa,
                                 "Sensitivity": sensitivity,
                                 "Specificity": specificity,
                                 self.custom_metric.__name__: custom_metric,
@@ -365,10 +361,9 @@ class LazyClassifier:
                         print(
                             {
                                 "Model": name,
-                                "Accuracy": accuracy,
-                                "Balanced Accuracy": b_accuracy,
                                 "ROC AUC": roc_auc,
-                                "F1 Score": f1,
+                                "Balanced Accuracy": b_accuracy,
+                                "Cohen's Kappa": kappa,
                                 "Sensitivity": sensitivity,
                                 "Specificity": specificity,
                                 "Time taken": time.time() - start,
@@ -384,10 +379,9 @@ class LazyClassifier:
             scores = pd.DataFrame(
                 {
                     "Model": names,
-                    "Accuracy": Accuracy,
-                    "Balanced Accuracy": B_Accuracy,
                     "ROC AUC": ROC_AUC,
-                    "F1 Score": F1,
+                    "Balanced Accuracy": B_Accuracy,
+                    "Cohen's Kappa": Kappa,
                     "Sensitivity": Sensitivity,
                     "Specificity": Specificity,
                     "Time Taken": TIME,
@@ -397,10 +391,9 @@ class LazyClassifier:
             scores = pd.DataFrame(
                 {
                     "Model": names,
-                    "Accuracy": Accuracy,
-                    "Balanced Accuracy": B_Accuracy,
                     "ROC AUC": ROC_AUC,
-                    "F1 Score": F1,
+                    "Balanced Accuracy": B_Accuracy,
+                    "Cohen's Kappa": Kappa,
                     "Sensitivity": Sensitivity,
                     "Specificity": Specificity,
                     self.custom_metric.__name__: CUSTOM_METRIC,
