@@ -354,7 +354,7 @@ class LazyClassifier:
                                 "Sensitivity": sensitivity,
                                 "Specificity": specificity,
                                 self.custom_metric.__name__: custom_metric,
-                                "Time taken": time.time() - start,
+                                "Fit Time": time.time() - start,
                             }
                         )
                     else:
@@ -366,7 +366,7 @@ class LazyClassifier:
                                 "Cohen's Kappa": kappa,
                                 "Sensitivity": sensitivity,
                                 "Specificity": specificity,
-                                "Time taken": time.time() - start,
+                                "Fit Time": time.time() - start,
                             }
                         )
                 if self.predictions:
@@ -384,7 +384,7 @@ class LazyClassifier:
                     "Cohen's Kappa": Kappa,
                     "Sensitivity": Sensitivity,
                     "Specificity": Specificity,
-                    "Time Taken": TIME,
+                    "Fit Time": TIME,
                 }
             )
         else:
@@ -397,7 +397,7 @@ class LazyClassifier:
                     "Sensitivity": Sensitivity,
                     "Specificity": Specificity,
                     self.custom_metric.__name__: CUSTOM_METRIC,
-                    "Time Taken": TIME,
+                    "Fit Time": TIME,
                 }
             )
         scores = scores.sort_values(by="Balanced Accuracy", ascending=False).set_index(
@@ -651,7 +651,7 @@ class LazyRegressor:
                         "R-Squared": r_squared,
                         "Adjusted R-Squared": adj_rsquared,
                         "RMSE": rmse,
-                        "Time taken": time.time() - start,
+                        "Fit Time": time.time() - start,
                     }
 
                     if self.custom_metric:
@@ -670,7 +670,7 @@ class LazyRegressor:
             "Adjusted R-Squared": ADJR2,
             "R-Squared": R2,
             "RMSE": RMSE,
-            "Time Taken": TIME,
+            "Fit Time": TIME,
         }
 
         if self.custom_metric:
