@@ -54,7 +54,9 @@ removed_classifiers = [
     "LabelPropagation",
     "LabelSpreading",
     "NuSVC",
-    "ExtraTreeClassifier",          
+    "ExtraTreeClassifier",
+    "GaussianProcessClassifier",
+    "XGBClassifier",
 ]
 
 removed_regressors = [
