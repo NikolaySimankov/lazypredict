@@ -16,6 +16,7 @@ from sklearn.utils import all_estimators
 from sklearn.base import RegressorMixin
 from sklearn.base import ClassifierMixin
 from sklearn.metrics import (
+    matthews_corrcoef,
     accuracy_score,
     balanced_accuracy_score,
     roc_auc_score,
@@ -253,7 +254,7 @@ class LazyClassifier:
         """
         ROC_AUC = []
         B_Accuracy = []
-        Kappa = []
+        MCC = []
         Sensitivity = []
         Specificity = []
         names = []
@@ -328,12 +329,18 @@ class LazyClassifier:
                 pipe.fit(X_train, y_train)
                 self.models[name] = pipe
                 y_pred = pipe.predict(X_test)
-                b_accuracy = balanced_accuracy_score(y_test, y_pred)
-                kappa = cohen_kappa_score(y_test, y_pred)
-                sensitivity = recall_score(y_test, y_pred, pos_label=1, average='binary')
-                specificity = recall_score(y_test, y_pred, pos_label=0, average='binary')
+
+                sample_weight = compute_sample_weight(
+                    class_weight = 'balanced',
+                    y_test,
+                )
+                
+                b_accuracy = balanced_accuracy_score(y_test, y_pred, sample_weight = sample_weight)
+                mcc = MCC(y_test, y_pred, sample_weight = sample_weight)
+                sensitivity = recall_score(y_test, y_pred, pos_label=1, sample_weight = sample_weight, average='binary')
+                specificity = recall_score(y_test, y_pred, pos_label=0, asample_weight = sample_weight, verage='binary')
                 try:
-                    roc_auc = roc_auc_score(y_test, y_pred)
+                    roc_auc = roc_auc_score(y_test, y_pred, sample_weight = sample_weight)
                 except Exception as exception:
                     roc_auc = None
                     if self.ignore_warnings is False:
@@ -342,7 +349,7 @@ class LazyClassifier:
                 names.append(name)
                 ROC_AUC.append(roc_auc)
                 B_Accuracy.append(b_accuracy)
-                Kappa.append(kappa)
+                MCC.append(mcc)
                 Sensitivity.append(sensitivity)
                 Specificity.append(specificity)
                 TIME.append(time.time() - start)
@@ -356,7 +363,7 @@ class LazyClassifier:
                                 "Model": name,
                                 "ROC AUC": roc_auc,
                                 "Balanced Accuracy": b_accuracy,
-                                "Cohen's Kappa": kappa,
+                                "MCC": mcc,
                                 "Sensitivity": sensitivity,
                                 "Specificity": specificity,
                                 self.custom_metric.__name__: custom_metric,
@@ -369,7 +376,7 @@ class LazyClassifier:
                                 "Model": name,
                                 "ROC AUC": roc_auc,
                                 "Balanced Accuracy": b_accuracy,
-                                "Cohen's Kappa": kappa,
+                                "MCC": mcc,
                                 "Sensitivity": sensitivity,
                                 "Specificity": specificity,
                                 "Fit Time": time.time() - start,
@@ -387,7 +394,7 @@ class LazyClassifier:
                     "Model": names,
                     "ROC AUC": ROC_AUC,
                     "Balanced Accuracy": B_Accuracy,
-                    "Cohen's Kappa": Kappa,
+                    "MCC": MCC,
                     "Sensitivity": Sensitivity,
                     "Specificity": Specificity,
                     "Fit Time": TIME,
@@ -399,7 +406,7 @@ class LazyClassifier:
                     "Model": names,
                     "ROC AUC": ROC_AUC,
                     "Balanced Accuracy": B_Accuracy,
-                    "Cohen's Kappa": Kappa,
+                    "MCC": MCC,
                     "Sensitivity": Sensitivity,
                     "Specificity": Specificity,
                     self.custom_metric.__name__: CUSTOM_METRIC,
@@ -449,7 +456,6 @@ def adjusted_rsquared(r2, n, p):
 
 
 # Helper class for performing classification
-
 
 class LazyRegressor:
     """
