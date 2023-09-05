@@ -330,10 +330,7 @@ class LazyClassifier:
                 self.models[name] = pipe
                 y_pred = pipe.predict(X_test)
 
-                sample_weight = compute_sample_weight(
-                    class_weight = 'balanced',
-                    y_test,
-                )
+                sample_weight = compute_sample_weight('balanced', y_test)
                 
                 b_accuracy = balanced_accuracy_score(y_test, y_pred, sample_weight = sample_weight)
                 mcc = MCC(y_test, y_pred, sample_weight = sample_weight)
