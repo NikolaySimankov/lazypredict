@@ -299,32 +299,24 @@ class LazyClassifier:
         for name, model in tqdm(self.classifiers):
             start = time.time()
             try:
-                if "class_weight" in model().get_params().keys() and "random_state" in model().get_params().keys():
-                    pipe = Pipeline(
-                        steps=[
-                            ("preprocessor", preprocessor),
-                            ("classifier", model(random_state=self.random_state,
-                                                 class_weight=self.class_weight)),
-                        ]
-                    )
-                elif "random_state" in model().get_params().keys():
-                    pipe = Pipeline(
-                        steps=[
-                            ("preprocessor", preprocessor),
-                            ("classifier", model(random_state=self.random_state)),
-                        ]
-                    )
-                elif "class_weight" in model().get_params().keys():
-                    pipe = Pipeline(
-                        steps=[
-                            ("preprocessor", preprocessor),
-                            ("classifier", model(class_weight=self.class_weight)),
-                        ]
-                    )
-                else:
-                    pipe = Pipeline(
-                        steps=[("preprocessor", preprocessor), ("classifier", model())]
-                    )
+                keys = model().get_params().keys()
+                kwargs = {}
+                
+                if "class_weight" in keys:
+                    kwargs["class_weight"] = self.class_weight
+                
+                if "random_state" in keys:
+                    kwargs["random_state"] = self.random_state
+                
+                if "n_jobs" in keys:
+                    kwargs["n_jobs"] = self.n_jobs
+                
+                pipe = Pipeline(
+                    steps=[
+                        ("preprocessor", preprocessor),
+                        ("classifier", model(**kwargs)),
+                    ]
+                )
 
                 pipe.fit(X_train, y_train)
                 self.models[name] = pipe
