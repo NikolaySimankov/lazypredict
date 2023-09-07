@@ -17,10 +17,8 @@ from sklearn.base import RegressorMixin
 from sklearn.base import ClassifierMixin
 from sklearn.metrics import (
     matthews_corrcoef,
-    accuracy_score,
     balanced_accuracy_score,
     roc_auc_score,
-    cohen_kappa_score,
     recall_score,
     r2_score,
     mean_squared_error,
