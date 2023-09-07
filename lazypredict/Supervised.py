@@ -219,6 +219,7 @@ class LazyClassifier:
         random_state=42,
         classifiers="all",
         class_weight=None,
+        n_jobs=-1,
     ):
         self.verbose = verbose
         self.ignore_warnings = ignore_warnings
@@ -228,6 +229,7 @@ class LazyClassifier:
         self.random_state = random_state
         self.class_weight = class_weight
         self.classifiers = classifiers
+        self.n_jobs = n_jobs
 
     def fit(self, X_train, X_test, y_train, y_test):
         """Fit Classification algorithms to X_train and y_train, predict and score on X_test, y_test.
