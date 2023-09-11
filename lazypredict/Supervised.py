@@ -327,7 +327,7 @@ class LazyClassifier:
 
                 sample_weight = compute_sample_weight(
                     class_weight='balanced',
-                    y=true_value,
+                    y=y_test,
                 )
                 
                 b_accuracy = balanced_accuracy_score(y_test, y_pred, sample_weight = sample_weight)
