@@ -323,19 +323,13 @@ class LazyClassifier:
 
                 pipe.fit(X_train, y_train)
                 self.models[name] = pipe
-                y_pred = pipe.predict(X_test)
-
-                sample_weight = compute_sample_weight(
-                    class_weight='balanced',
-                    y=y_test,
-                )
-                
-                b_accuracy = balanced_accuracy_score(y_test, y_pred, sample_weight = sample_weight)
-                mcc = MCC(y_test, y_pred, sample_weight = sample_weight)
+                y_pred = pipe.predict(X_test)                
+                b_accuracy = balanced_accuracy_score(y_test, y_pred)
+                mcc = MCC(y_test, y_pred)
                 sensitivity = recall_score(y_test, y_pred, pos_label=1, average='binary')
                 specificity = recall_score(y_test, y_pred, pos_label=0, average='binary')
                 try:
-                    roc_auc = roc_auc_score(y_test, pipe.predict_proba(X_test), sample_weight = sample_weight)
+                    roc_auc = roc_auc_score(y_test, pipe.predict_proba(X_test))
                 except Exception as exception:
                     roc_auc = None
                     if self.ignore_warnings is False:
