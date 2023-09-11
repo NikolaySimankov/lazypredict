@@ -328,7 +328,7 @@ class LazyClassifier:
                 sensitivity = recall_score(y_test, y_pred, pos_label=1, average='binary')
                 specificity = recall_score(y_test, y_pred, pos_label=0, average='binary')
                 try:
-                    roc_auc = roc_auc_score(y_test, pipe.predict_proba(X_test))
+                    roc_auc = roc_auc_score(y_test, pipe.predict_proba(X_test)[1])
                 except Exception as exception:
                     roc_auc = None
                     if self.ignore_warnings is False:
