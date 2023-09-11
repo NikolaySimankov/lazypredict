@@ -18,7 +18,6 @@ from sklearn.base import ClassifierMixin
 from sklearn.metrics import (
     matthews_corrcoef,
     balanced_accuracy_score,
-    roc_auc_score,
     recall_score,
     r2_score,
     mean_squared_error,
@@ -254,7 +253,6 @@ class LazyClassifier:
         predictions : Pandas DataFrame
             Returns predictions of all the models in a Pandas DataFrame.
         """
-        ROC_AUC = []
         B_Accuracy = []
         MCC = []
         Sensitivity = []
@@ -327,15 +325,7 @@ class LazyClassifier:
                 mcc = matthews_corrcoef(y_test, y_pred)
                 sensitivity = recall_score(y_test, y_pred, pos_label=1, average='binary')
                 specificity = recall_score(y_test, y_pred, pos_label=0, average='binary')
-                try:
-                    roc_auc = roc_auc_score(y_test, pipe.predict_proba(X_test)[1])
-                except Exception as exception:
-                    roc_auc = None
-                    if self.ignore_warnings is False:
-                        print("ROC AUC couldn't be calculated for " + name)
-                        print(exception)
                 names.append(name)
-                ROC_AUC.append(roc_auc)
                 B_Accuracy.append(b_accuracy)
                 MCC.append(mcc)
                 Sensitivity.append(sensitivity)
@@ -349,7 +339,6 @@ class LazyClassifier:
                         print(
                             {
                                 "Model": name,
-                                "ROC AUC": roc_auc,
                                 "Balanced Accuracy": b_accuracy,
                                 "MCC": mcc,
                                 "Sensitivity": sensitivity,
@@ -362,7 +351,6 @@ class LazyClassifier:
                         print(
                             {
                                 "Model": name,
-                                "ROC AUC": roc_auc,
                                 "Balanced Accuracy": b_accuracy,
                                 "MCC": mcc,
                                 "Sensitivity": sensitivity,
@@ -380,7 +368,6 @@ class LazyClassifier:
             scores = pd.DataFrame(
                 {
                     "Model": names,
-                    "ROC AUC": ROC_AUC,
                     "Balanced Accuracy": B_Accuracy,
                     "MCC": MCC,
                     "Sensitivity": Sensitivity,
@@ -392,7 +379,6 @@ class LazyClassifier:
             scores = pd.DataFrame(
                 {
                     "Model": names,
-                    "ROC AUC": ROC_AUC,
                     "Balanced Accuracy": B_Accuracy,
                     "MCC": MCC,
                     "Sensitivity": Sensitivity,
