@@ -324,7 +324,7 @@ class LazyClassifier:
                 self.models[name] = pipe
                 y_pred = pipe.predict(X_test)                
                 b_accuracy = balanced_accuracy_score(y_test, y_pred)
-                mcc = MCC(y_test, y_pred)
+                mcc = matthews_corrcoef(y_test, y_pred)
                 sensitivity = recall_score(y_test, y_pred, pos_label=1, average='binary')
                 specificity = recall_score(y_test, y_pred, pos_label=0, average='binary')
                 try:
